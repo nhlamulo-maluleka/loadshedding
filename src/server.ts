@@ -19,10 +19,11 @@ const todaySchedule = async (block: number): Promise<string | Array<Object>> => 
         if (day) {
             if (date.getDate() === Number(day)) {
                 const hours = s.time?.match(/^\d/)
-                if (hours && Number(hours[0]) === date.getHours()) {
-                    const startTime = s.time?.split("-");
-                    if (startTime)
-                        console.log(`${startTime[0].trim()}:00`)
+                if (hours) {
+                    if (Number(hours[0]) === date.getHours()) {
+                        const startTime = s.time?.split("-");
+                        if (startTime) console.log(`${startTime[0].trim()}:00`)
+                    }
                 }
             }
         }
