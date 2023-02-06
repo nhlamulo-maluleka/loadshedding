@@ -21,7 +21,6 @@ const todaySchedule = async (block: number): Promise<string | Array<Object>> => 
                 const hours = s.time?.match(/^\d/)
                 if (hours && Number(hours[0]) === date.getHours()) {
                     const startTime = s.time?.split("-");
-                    // today.push(s)
                     if (startTime)
                         console.log(`${startTime[0].trim()}:00`)
                 }
