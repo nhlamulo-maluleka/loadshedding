@@ -6,7 +6,7 @@ const url: string = "https://www.citypower.co.za/customers/Pages/Load_Shedding_D
 const stageTitleRegex: RegExp = /(Stage(\s)*(\s)*\d).(\s*)(Load.\s*Shedding)(\s*)(-).*(2023)/ig
 const tableHeaderRegex: RegExp = /(Time)|(Blocks.\s*to.\s*be.\s*Affected)/i
 const blocksExtraction: RegExp = /(Block).*.[0-9,]/i
-const extractingTimeRegex: RegExp = /((\d.(:).\d)(\s)*.(-).\s*([0-9:].(:).\d))/
+const extractingTimeRegex: RegExp = /((\d+.(:).\d+)(\s)*.(-).\s*([0-9:].(:).\d+))/
 
 const getFirstIndexOfStageList = (dirtySchedule: Array<string>): number => {
     for (let index in dirtySchedule) {
@@ -88,8 +88,8 @@ const structureSchedule = async (partitioned: Promise<Array<Array<string>> | nul
     for (let schedule of data) {
         for (let stageInfo of schedule) {
             if (stageTitleRegex.test(stageInfo)) {
-                dateMatch = stageInfo.match(/\d(st|nd|rd|th).*.(2023)/i);
-                stage = stageInfo.match(/(Stage\s*).\d/)
+                dateMatch = stageInfo.match(/\d+(st|nd|rd|th).*.(2023)/i);
+                stage = stageInfo.match(/(Stage\s*).\d+/)
             }
             else if (blocksExtraction.test(stageInfo)) {
                 if (extractingTimeRegex.test(time)) {
@@ -113,7 +113,42 @@ const structureSchedule = async (partitioned: Promise<Array<Array<string>> | nul
         }
     }
 
+    // console.log(completeSchedule)
     return completeSchedule;
 }
 
-export default structureSchedule(partitionSchedule(getLoadSheddingSchedule()));
+const todaySchedule = async (block: number): Promise<string | Array<Object>> => {
+    const data = await structureSchedule(partitionSchedule(getLoadSheddingSchedule()));;
+    const date: Date = new Date();
+    const today: Array<Object> = new Array<Object>();
+
+    if (!data) return String("Error occured while fetching data...");
+
+    for (let s of data) {
+        const day = s.date?.match(/^\d+/)
+
+        if (day) {
+            if (date.getDate() === Number(day[0])) {
+                const hours = s.time?.match(/^\d+/)
+                if (hours) {
+                    if (Number(hours[0]) >= date.getHours()) {
+                        const splitBlocks = s.blocks?.split(',')
+
+                        if (!splitBlocks) return [];
+
+                        for (let b of splitBlocks) {
+                            const ckb = b.match(/(\d+)/)
+                            if (ckb) {
+                                if (+ckb[0] === block)
+                                    today.push(s)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return today.length > 0 ? today : String("<h1>You do not have any more loadshedding today</h1>")
+}
+
+export { todaySchedule }
