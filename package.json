@@ -1,12 +1,13 @@
 {
   "name": "web-scraping",
   "version": "1.0.0",
-  "description": "",
+  "description": "A web-scraping which scrapes for loadsheding times and creates a schedule!",
   "main": "server.js",
   "scripts": {
     "ts": "tsc -w --project ./tsconfig.json",
     "js": "nodemon ./dist/server.js",
-    "start": "concurrently -n ts,js -c blue,yellow \"npm run ts\" \"npm run js\""
+    "start": "concurrently -n ts,js -c blue,yellow \"npm run ts\" \"npm run js\"",
+    "node": "nodemon loadshedding.js"
   },
   "author": "nhlamulo maluleka",
   "license": "ISC",
@@ -19,10 +20,13 @@
     "concurrently": "^7.6.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "json2csv": "^6.0.0-alpha.2",
     "typescript": "^4.9.5"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
+  },
+  "engines": {
+    "npm": ">=8.0.0",
+    "node": ">=16.0.0"
   }
 }
