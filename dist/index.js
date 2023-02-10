@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -27,42 +36,44 @@ const getLastIndexOfBlocks = (dirtySchedule) => {
     // If not found!!
     return pos;
 };
-const getLoadSheddingSchedule = async () => {
+const getLoadSheddingSchedule = () => __awaiter(void 0, void 0, void 0, function* () {
     let loadshedding = new Array();
     try {
-        const response = await axios_1.default.get(url);
+        const response = yield axios_1.default.get(url);
         const $ = (0, cheerio_1.load)(response.data);
         const headers = $("span");
         headers.each(function (i, _) {
             loadshedding[i] = $(this).text();
         });
         // Removing empty indexes
-        loadshedding = await loadshedding.filter((value) => /[A-Za-z0-9]/g.test(value));
+        loadshedding = yield loadshedding.filter((value) => /[A-Za-z0-9]/g.test(value));
         // Removing table headers (Time && Blocks to be Affected)
-        loadshedding = await loadshedding.filter((value) => !tableHeaderRegex.test(value));
-        await loadshedding.splice(0, getFirstIndexOfStageList(loadshedding));
-        await loadshedding.splice(getLastIndexOfBlocks(loadshedding) + 1, loadshedding.length);
+        loadshedding = yield loadshedding.filter((value) => !tableHeaderRegex.test(value));
+        yield loadshedding.splice(0, getFirstIndexOfStageList(loadshedding));
+        yield loadshedding.splice(getLastIndexOfBlocks(loadshedding) + 1, loadshedding.length);
+        // console.log(loadshedding)
         return loadshedding;
     }
     catch (err) {
         console.error(err);
     }
-};
-const partitionSchedule = async (schedule) => {
-    const data = await schedule;
+});
+const partitionSchedule = (schedule) => __awaiter(void 0, void 0, void 0, function* () {
+    const data = yield schedule;
     if (!data)
         return null;
     const partitioned = [new Array()];
     data.forEach((value) => {
+        var _a;
         if (stageTitleRegex.test(value))
             partitioned.push(new Array(value));
         else
-            partitioned[partitioned.length - 1]?.push(value);
+            (_a = partitioned[partitioned.length - 1]) === null || _a === void 0 ? void 0 : _a.push(value);
     });
     return partitioned;
-};
-const structureSchedule = async (partitioned) => {
-    const data = await partitioned;
+});
+const structureSchedule = (partitioned) => __awaiter(void 0, void 0, void 0, function* () {
+    const data = yield partitioned;
     if (!data)
         return null;
     let time = String();
@@ -98,5 +109,5 @@ const structureSchedule = async (partitioned) => {
         }
     }
     return completeSchedule;
-};
+});
 exports.default = structureSchedule(partitionSchedule(getLoadSheddingSchedule()));

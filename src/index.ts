@@ -47,6 +47,8 @@ const getLoadSheddingSchedule = async (): Promise<Array<string> | undefined> => 
         await loadshedding.splice(0, getFirstIndexOfStageList(loadshedding));
         await loadshedding.splice(getLastIndexOfBlocks(loadshedding) + 1, loadshedding.length);
 
+        // console.log(loadshedding)
+
         return loadshedding;
     } catch (err) {
         console.error(err);
